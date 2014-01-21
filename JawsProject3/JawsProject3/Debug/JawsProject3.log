@@ -1,0 +1,28 @@
+﻿Build started 2014-01-21 02:26:18.
+     1>Project "C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\JawsProject3\JawsProject3.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W4 /WX- /Od /Oi /Oy- /D WIN32 /D _DEBUG /D DEBUG /D PROFILE /D _WINDOWS /D _WIN32_WINNT=0x0600 /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /arch:SSE2 /fp:fast /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Source.cpp
+         Source.cpp
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(17): warning C4005: '_DEBUG' : macro redefinition
+                 command-line arguments :  see previous definition of '_DEBUG'
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(188): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(192): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(196): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(200): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(206): warning C4554: '&' : check operator precedence for possible error; use parentheses to clarify precedence
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(215): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\jaws\documents\visual studio 2012\projects\jawsproject3\jawsproject3\source.cpp(216): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\Debug\JawsProject3.exe" /INCREMENTAL /NOLOGO d3d11.lib d3dcompiler.lib dxguid.lib winmm.lib comctl32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\Debug\JawsProject3.pdb" /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\Debug\JawsProject3.lib" /MACHINE:X86 Debug\Camera.obj
+         Debug\DDSTextureLoader.obj
+         Debug\MathHelper.obj
+         Debug\ParticleSystem.obj
+         Debug\Source.obj
+         Debug\Terrain.obj
+         Debug\GraphicHelper.obj
+         JawsProject3.vcxproj -> C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\Debug\JawsProject3.exe
+     1>Done Building Project "C:\Users\Jaws\Documents\Visual Studio 2012\Projects\JawsProject3\JawsProject3\JawsProject3.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:01.72

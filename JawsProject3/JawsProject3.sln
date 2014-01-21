@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JawsProject3", "JawsProject3\JawsProject3.vcxproj", "{37CC6173-085B-43C0-A664-46C42BA4D908}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37CC6173-085B-43C0-A664-46C42BA4D908}.Debug|Win32.ActiveCfg = Debug|Win32
+		{37CC6173-085B-43C0-A664-46C42BA4D908}.Debug|Win32.Build.0 = Debug|Win32
+		{37CC6173-085B-43C0-A664-46C42BA4D908}.Release|Win32.ActiveCfg = Release|Win32
+		{37CC6173-085B-43C0-A664-46C42BA4D908}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
