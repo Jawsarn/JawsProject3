@@ -13,7 +13,7 @@ using namespace DirectX;
 
 class Camera
 {
-	public: Camera();
+public: Camera(Terrain* t);
 	~Camera();
 
 	// Get/Set world camera position.

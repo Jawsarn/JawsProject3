@@ -126,9 +126,9 @@ HRESULT Terrain::InitializeCBuffers(ID3D11Device * device,ID3D11DeviceContext* d
 	CBOnButtonPress cbBP;
 	cbBP.gMaxDist = 900;
 	cbBP.gMinDist = 400;
-	cbBP.gMaxTess = 6;
+	cbBP.gMaxTess = 5;
 	cbBP.gMinTess = 0;
-	cbBP.gTexScale = XMFLOAT2(80.0f, 80.0f); //change when addex texture
+	cbBP.gTexScale = XMFLOAT2(10.0f, 10.0f); //change when addex texture
 	cbBP.paddin1 = 0.0f;
 	cbBP.padding2 = 0.0f;
 	cbBP.World = XMMatrixTranspose(g_World);
@@ -502,7 +502,7 @@ float Terrain::GetWidth(void)const
 
 float Terrain::GetDepth(void)const
 {
-	return (mInfo.HeightmapWidth - 1)*mInfo.CellSpacing;
+	return (mInfo.HeightmapHeight - 1)*mInfo.CellSpacing;
 }
 
 HRESULT Terrain::BuildQuadPatchVertexBuffer(ID3D11Device *device, ID3D11DeviceContext* deviceContext)
@@ -897,3 +897,47 @@ void Terrain::Cleanup(ID3D11Device* device)
 	if( g_pDomainShader ) g_pDomainShader->Release();
 }
 
+float Terrain::GetHeight(float x, float z)
+{
+	// Transform from terrain local space to "cell" space.
+	float c = (x + 0.5f*GetWidth()) / mInfo.CellSpacing;
+	float d = (z - 0.5f*GetDepth()) / -mInfo.CellSpacing;
+
+	
+	// Get the row and column we are in.
+	int row = (int)floorf(d);
+	int col = (int)floorf(c);
+	
+	if(InBounds(row,col)&&
+		InBounds(row,col + 1)&&
+		InBounds(row + 1,col)&&
+		InBounds(row + 1,col + 1))
+	{
+		float A = mHeightmap[row*mInfo.HeightmapWidth + col];
+		float B = mHeightmap[row*mInfo.HeightmapWidth + col + 1];
+		float C = mHeightmap[(row+1)*mInfo.HeightmapWidth + col];
+		float D = mHeightmap[(row+1)*mInfo.HeightmapWidth + col + 1];
+	
+		//factors
+		float s = c - (float)col;
+		float t = d - (float)row;
+
+		//linear interpolation
+		if(s + t <= 1.0f) //top triangle
+		{
+			float uy = B - A;
+			float vy = C - A;
+			return A + s*uy + t*vy + 10;
+		}
+		else // lower triangle DCB.
+		{
+			float uy = C - D;
+			float vy = B - D;
+			return D + (1.0f-s)*uy + (1.0f-t)*vy + 10;
+		}
+	}
+	else
+	{
+		return 100;
+	}
+}

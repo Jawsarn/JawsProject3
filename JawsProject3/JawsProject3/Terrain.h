@@ -7,6 +7,8 @@
 #include "GraphicHelper.h"
 #include "DDSTextureLoader.h"
 
+#pragma once
+
 class Terrain
 {
 public:
@@ -18,6 +20,7 @@ public:
 	
 	void Draw(ID3D11DeviceContext* deviceContext);
 	void Cleanup(ID3D11Device* device);
+	float GetHeight(float x, float z);
 	
 	
 private:

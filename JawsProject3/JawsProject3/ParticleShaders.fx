@@ -8,6 +8,7 @@ struct Material
 	float4 Diffuse;
 	float4 Specular; // w = SpecPower
 	//float4 Reflect;
+	float4 Transmission;
 };
 
 struct PointLight
@@ -37,6 +38,11 @@ cbuffer ConstantBuffer	:register(b0)
 	DirectionalLight gDirLight;
 	PointLight gPointLight;
 	Material gMaterial;
+
+	float4 gFogColor;
+	float gFogStart;
+	float gFogRange;
+	float2 pad;
 };
 
 cbuffer CBPerFrame		:register(b1)
@@ -130,7 +136,7 @@ Particle VSUpdate(Particle vin)
 // programed here will generally vary from particle system
 // to particle system, as the destroy/spawn rules will be
 // different.
-[maxvertexcount(40)]
+[maxvertexcount(20)]
 void GSUpdate(point Particle gin[1],inout PointStream<Particle> ptStream)
 {
 	gin[0].Age += gTimeStep;
@@ -139,7 +145,7 @@ void GSUpdate(point Particle gin[1],inout PointStream<Particle> ptStream)
 		// time to emit a new particle?
 		if(gin[0].Age > 0.002f)
 		{
-			for(int i = 0; i < 39; ++i)
+			for(int i = 0; i < 19; ++i)
 			{
 			// Spread rain drops out above the camera.
 
@@ -167,7 +173,7 @@ void GSUpdate(point Particle gin[1],inout PointStream<Particle> ptStream)
 	{
 		// Specify conditions to keep particle; this may vary
 		// from system to system.
-		if( gin[0].Age <= 7.0f )
+		if( gin[0].Age <= 10.0f )
 		ptStream.Append(gin[0]);
 	}
 }
@@ -207,6 +213,7 @@ struct VertexOut
 struct GeoOut
 {
 	float4 PosH : SV_Position;
+	float3 PosW : POSITION;
 	float2 Tex : TEXCOORD;
 };
 
@@ -252,12 +259,14 @@ void GSDraw(point VertexOut gin[1], inout LineStream<GeoOut> lineStream)
 		float3 p1 = gin[0].PosW + 0.07f*gAccelW;
 
 		GeoOut v0;
+		v0.PosW = p0;
 		v0.PosH = mul(float4(p0, 1.0f), View);
 		v0.PosH = mul(v0.PosH, Projection);
 		v0.Tex = float2(0.0f, 0.0f);
 		lineStream.Append(v0);
 
 		GeoOut v1;
+		v1.PosW = p1;
 		v1.PosH = mul(float4(p1, 1.0f), View);
 		v1.PosH = mul(v1.PosH, Projection);
 		v1.Tex = float2(1.0f, 1.0f);
@@ -266,8 +275,14 @@ void GSDraw(point VertexOut gin[1], inout LineStream<GeoOut> lineStream)
 
 }
 
-float4 PSDraw(GeoOut pin) : SV_TARGET
+float4 PSDraw(GeoOut input) : SV_TARGET
 {
-	return float4(0.25,0.25,1,0);
+	float4 litColor =  float4(0.25,0.25,1,0);
+
+	float distToEye = length(input.PosW - gEyePosW);
+	float fogLerp = saturate((distToEye - gFogStart) /gFogRange);
+	litColor = lerp(litColor, gFogColor, fogLerp);
+
+	return litColor;
 	//return gTexArray.Sample(samLinear, float3(pin.Tex, 0));
 }

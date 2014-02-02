@@ -13,6 +13,7 @@ using namespace DirectX;
 #include "LightHelper.h"
 #include "Camera.h"
 #include "ParticleSystem.h"
+#include "CustomMeshes.h"
 
 #define _DEBUG
 
@@ -22,6 +23,11 @@ struct ConstantBuffer
 	DirectionalLight gDirLight;
 	PointLight gPointLight;
 	Material gMaterial;
+
+	XMFLOAT4 gFogColor;
+	float gFogStart;
+	float gFogRange;
+	XMFLOAT2 pad;
 
 	//moved frustrums to frame
 };
@@ -65,10 +71,11 @@ ID3D11Buffer*				g_pConstantBuffer = nullptr;
 ID3D11ShaderResourceView*	g_pTextureRV = nullptr;
 ID3D11SamplerState*			g_pSamplerLinear = nullptr;
 
-Terrain						g_Terrain;
+Terrain*					g_Terrain;
 ParticleSystem				g_ParticleSystem;
 Camera*						g_Camera;
 GraphicHelper				g_GraphicHelper;
+CustomMeshes*				g_CustomMeshes;
 
 Material					g_Material;
 PointLight					g_PointLight;
@@ -185,19 +192,19 @@ void UpdateScene(float dt)
 {
 	if(GetAsyncKeyState('W')&0x8000)
 	{
-		g_Camera->Walk(2000.0*dt);
+		g_Camera->Walk(20000.0*dt);
 	}
 	if(GetAsyncKeyState('S')&0x8000)
 	{
-		g_Camera->Walk(-2000.0*dt);
+		g_Camera->Walk(-20000.0*dt);
 	}
 	if(GetAsyncKeyState('A')&0x8000)
 	{
-		g_Camera->Strafe(-2000.0*dt);
+		g_Camera->Strafe(-20000.0*dt);
 	}
 	if(GetAsyncKeyState('D')&0x8000)
 	{
-		g_Camera->Strafe(2000.0*dt);
+		g_Camera->Strafe(20000.0*dt);
 	}
 }
 
@@ -305,21 +312,25 @@ HRESULT InitDevice()
 
 
 
-	//intialize terrain
-	g_Terrain = Terrain();
-	hr = g_Terrain.Initialize(g_pd3dDevice, g_pImmediateContext);
-	if( FAILED( hr ) )
-        return hr;
+	////intialize terrain
+	//g_Terrain = new Terrain();
+	//hr = g_Terrain->Initialize(g_pd3dDevice, g_pImmediateContext);
+	//if( FAILED( hr ) )
+ //       return hr;
 
-	//initialize particle system
-	g_ParticleSystem  = ParticleSystem();
-	hr = g_ParticleSystem.Initialize(g_pd3dDevice, g_pImmediateContext);
-	if( FAILED( hr ) )
-        return hr;
+	////initialize particle system
+	//g_ParticleSystem  = ParticleSystem();
+	//hr = g_ParticleSystem.Initialize(g_pd3dDevice, g_pImmediateContext);
+	//if( FAILED( hr ) )
+ //       return hr;
+
+	g_CustomMeshes = new CustomMeshes();
+	g_CustomMeshes->Initialize(g_pd3dDevice,g_pImmediateContext);
+	
 
 	//set camera...
-	g_Camera = new Camera();
-	g_Camera->LookAt(XMFLOAT3(0,150,-100),XMFLOAT3(0,0,1),XMFLOAT3(0,0,1));
+	g_Camera = new Camera(g_Terrain);
+	g_Camera->LookAt(XMFLOAT3(0,150, 0),XMFLOAT3(0,0,1),XMFLOAT3(0,1,0));
 	g_Camera->SetLens(XM_PIDIV4, width / (FLOAT)height, 0.01f, 100000.0f );
 	//not sure if should be the transposed or normal
 	
@@ -334,6 +345,7 @@ HRESULT InitDevice()
 	g_Material.Ambient = XMFLOAT4(1,1,1,1);
 	g_Material.Diffuse = XMFLOAT4(1,1,1,1);
 	g_Material.Specular = XMFLOAT4(1,1,1,1);
+	g_Material.Transmission = XMFLOAT4(1,1,1,1);
 
 	//set the pointlight
 	g_PointLight = PointLight();
@@ -341,9 +353,9 @@ HRESULT InitDevice()
 	g_PointLight.Diffuse =	XMFLOAT4(0.6,		0.6,	0.6,		1);
 	g_PointLight.Specular =	XMFLOAT4(0.3,		0.3,	0.3,		1);
 	g_PointLight.Pad = 0;
-	g_PointLight.Position = XMFLOAT3( 0, 250, -0);
+	g_PointLight.Position = XMFLOAT3(200, 250, 100);
 	g_PointLight.Att = XMFLOAT3(1.0,0,0);
-	g_PointLight.Range = 10000;
+	g_PointLight.Range = 100000;
 
 
 
@@ -382,6 +394,9 @@ HRESULT InitDevice()
 	cb.gMaterial = g_Material;
 	cb.gPointLight = g_PointLight;
 	cb.gDirLight = g_DirectionalLight;
+	cb.gFogStart = 30;
+	cb.gFogRange = 150;
+	cb.gFogColor = XMFLOAT4(0,0,0,0);
 	g_pImmediateContext->UpdateSubresource( g_pConstantBuffer, 0, nullptr, &cb, 0, 0 );
 
 
@@ -539,7 +554,7 @@ HRESULT CreateRastizer()
 	D3D11_RASTERIZER_DESC desc;
 	//desc.FillMode = D3D11_FILL_WIREFRAME;
 	desc.FillMode = D3D11_FILL_SOLID;
-	desc.CullMode = D3D11_CULL_NONE;
+	desc.CullMode = D3D11_CULL_BACK;
 	desc.FrontCounterClockwise = false;
 	desc.DepthBias = 0;
 	desc.SlopeScaledDepthBias = 0.0f;
@@ -657,7 +672,7 @@ void Render()
 	g_Camera->ExtractFrustumPlanes(viewProject);
 
 	// clear the backbuffer
-	g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, Colors::Black );
+	g_pImmediateContext->ClearRenderTargetView( g_pRenderTargetView, Colors::DarkGray );
 	
 	
 	//clear the depth buffer to max depth (1.0)
@@ -712,8 +727,9 @@ void Render()
 	g_pImmediateContext->PSSetConstantBuffers( 1, 1, &g_pCBPerFrame );
 
 
-	g_Terrain.Draw(g_pImmediateContext);
-	//g_ParticleSystem.Draw(g_pImmediateContext,g_pd3dDevice,dt,gt);
+	/*g_Terrain->Draw(g_pImmediateContext);
+	g_ParticleSystem.Draw(g_pImmediateContext,g_pd3dDevice,dt,gt);*/
+	g_CustomMeshes->Draw(g_pImmediateContext);
 
 	//swap the buffer
     g_pSwapChain->Present( 0, 0 );
@@ -740,8 +756,9 @@ void CleanupDevice()
     if( g_pd3dDevice ) g_pd3dDevice->Release();
 
 
-	g_Terrain.Cleanup(g_pd3dDevice);
+	/*g_Terrain->Cleanup(g_pd3dDevice);
 	g_ParticleSystem.Cleanup(g_pd3dDevice);
 	delete(g_Camera);
+	delete(g_Terrain);*/
 }
 

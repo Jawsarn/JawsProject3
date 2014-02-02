@@ -1,14 +1,14 @@
 #include "Camera.h"
 #include <d3d11_1.h>
 
-Camera::Camera()
+Camera::Camera(Terrain* t)
 {
-	
+	mTerrain = t;
 }
 
 Camera::~Camera()
 {
-
+	
 }
 
 XMVECTOR Camera::GetPositionXM()const
@@ -41,9 +41,11 @@ void Camera::LookAt(const XMFLOAT3& pos, const XMFLOAT3& target, const XMFLOAT3&
 	XMMATRIX V = XMMatrixLookAtLH( Eye, At, Up );
 	
 	mPosition = pos;
-	mRight = XMFLOAT3(1,0,0); // view space x-axis
-	mUp = XMFLOAT3(0,1,0); // view space y-axis
-	mLook = XMFLOAT3(0,0,1); // view space z-axis
+
+	XMVECTOR r = XMVector3Cross(Up,At); 
+	XMStoreFloat3(&mRight,r); // view space x-axis
+	mUp = up; // view space y-axis
+	mLook = target; // view space z-axis
 
 	XMStoreFloat4x4(&mView,V);
 }
@@ -100,9 +102,14 @@ void Camera::Walk(float d)
 	XMVECTOR l = XMLoadFloat3(&mLook);
 	XMVECTOR p = XMLoadFloat3(&mPosition);
 
+	
+	
 	XMStoreFloat3(&mPosition, XMVectorMultiplyAdd(s, l, p));
 
-	int i = 10;
+	/*float y = mTerrain->GetHeight(mPosition.x,mPosition.z);
+
+	mPosition = XMFLOAT3(mPosition.x, y, mPosition.z);*/
+
 }
 
 void Camera::Strafe(float d)
@@ -112,6 +119,10 @@ void Camera::Strafe(float d)
 	XMVECTOR p = XMLoadFloat3(&mPosition);
 
 	XMStoreFloat3(&mPosition, XMVectorMultiplyAdd(s, r, p));
+
+	/*float y = mTerrain->GetHeight(mPosition.x,mPosition.z);
+
+	mPosition = XMFLOAT3(mPosition.x, y, mPosition.z);*/
 }
 void Camera::Pitch(float angle)
 {

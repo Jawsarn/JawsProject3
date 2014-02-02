@@ -384,7 +384,7 @@ void ParticleSystem::Draw(ID3D11DeviceContext* deviceContext, ID3D11Device* devi
 	
 	//make fix pointers 554 in book
 	CParticleBuffer cpb;
-	cpb.gEmitPosW = XMFLOAT3(0,50,0);
+	cpb.gEmitPosW = XMFLOAT3(0,100,0);
 	cpb.gGameTime = gt;
 	cpb.gEmitDirW = XMFLOAT3(0,0,0);
 	cpb.gTimeStep = dt;

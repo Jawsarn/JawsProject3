@@ -5,6 +5,7 @@ struct Material
 	float4 Diffuse;
 	float4 Specular; // w = SpecPower
 	//float4 Reflect;
+	float4 Transmission;
 };
 
 struct PointLight
@@ -51,6 +52,11 @@ cbuffer ConstantBuffer	:register(b0)
 	DirectionalLight gDirLight;
 	PointLight gPointLight;
 	Material gMaterial;
+
+	float4 gFogColor;
+	float gFogStart;
+	float gFogRange;
+	float2 pad;
 }
 
 cbuffer CBPerFrame		:register(b1)
@@ -506,6 +512,13 @@ float4 PS(DS_OUTPUT input) : SV_TARGET
 	spec += S;
 
 	texColor = texColor * (ambient + diffuse + spec);
+
+	float distToEye = length(input.PosW - gEyePosW);
+	
+	float fogLerp = saturate((distToEye - gFogStart) /gFogRange);
+
+	texColor = lerp(texColor, gFogColor, fogLerp);
+
 
 	return texColor;
 
